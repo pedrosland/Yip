@@ -132,7 +132,8 @@ Yip.prototype = {
   contractID:       "@foyrek.com/yip;1",
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIYip, Ci.nsIClassInfo]),
   _xpcom_categories: [{category: "JavaScript global property", entry: "fluid"}, 
-                      {category: "JavaScript global property", entry: "platform"}],
+                      {category: "JavaScript global property", entry: "platform"}, 
+                      {category: "JavaScript global property", entry: "webkitNotifications"}],
   implementationLanguage: Ci.nsIProgrammingLanguage.JAVASCRIPT,
   flags: Ci.nsIClassInfo.DOM_OBJECT,
   getInterfaces: function(countRef) {
@@ -285,6 +286,36 @@ Yip.prototype = {
       icon : aImageURI
     }
     this.displayNotification(aNotifyObject);
+  },
+
+  //http://www.chromium.org/developers/design-documents/desktop-notifications/api-specification
+  webkitNotifications : {
+    requestPermission : function requestPermission(aCallback){
+      //TODO: Show popup for user
+      aCallback();
+    },
+    checkPermission : function checkPermission(){
+      // 0 = Allowed, 1 = Not Allowed, 2 = Denied
+      return 0;
+    },
+    createNotification : function createNotification(aImageURI, aTitle, aText){
+      return {
+        show: function show(){
+          var aNotifyObject = {
+            title : aTitle,
+            description : aText,
+            icon : aImageURI,
+            onFinished : this.onclose
+          }
+          this.displayNotification(aNotifyObject);
+
+          if(this.ondisplay){
+            this.ondisplay();
+          }
+        },
+        cancel: function cancel(){};
+      }
+    }
   }
 };
 
